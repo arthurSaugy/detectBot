@@ -1,0 +1,47 @@
+# ---------------------------------------------------------------------------
+# mcwatch — configuration
+# Copie ce fichier en `config.toml` puis renseigne le topic ntfy.
+# `config.toml` est ignoré par git : c'est là que vivent tes secrets.
+# ---------------------------------------------------------------------------
+
+[ntfy]
+server = "https://ntfy.sh"
+# Topic ntfy. N'importe qui connaissant ce nom peut lire les messages :
+# garde-le imprévisible. Abonne-toi depuis l'app ntfy (Android/iOS) ou sur
+# https://ntfy.sh/<topic> dans un navigateur.
+topic = "mc-newserver-CHANGE-MOI"
+# Seulement si tu utilises un topic protégé (compte ntfy ou instance perso).
+# token = "tk_xxxxxxxxxxxxxxxx"
+priority = 4          # 1=min ... 5=urgent
+
+[scan]
+# Nombre d'IDs testés après le dernier connu, à chaque passage.
+window = 3
+# Sites surveillés. Vide = les trois.
+# sites = ["serveursminecraft_org", "serveur_minecraft_com", "serveur_minecraft_vote_fr"]
+sites = []
+# Si l'ID suivant n'existe pas mais qu'un ID plus loin existe (serveur supprimé),
+# le curseur est bloqué. Après ce nombre de passages, il saute par-dessus le trou.
+# 6 passages = 6 h avec un timer horaire.
+gap_skip_after_runs = 6
+
+[network]
+timeout = 20.0
+# Pause aléatoire entre deux requêtes, en secondes. Reste poli.
+delay_min = 1.0
+delay_max = 3.0
+# user_agent = "Mozilla/5.0 (...)"
+
+# Repli navigateur quand Cloudflare sert un challenge anti-bot.
+#   "auto"   : requête HTTP simple, et Chromium headless seulement pour les
+#              domaines qui bloquent (recommandé).
+#   "never"  : jamais de navigateur ; un site bloqué remonte en erreur.
+#   "always" : Chromium pour les trois sites (lent, inutile en pratique).
+# Nécessite : pip install playwright && playwright install chromium
+browser_fallback = "auto"
+# Patience max face à la page « Just a moment… », en secondes.
+browser_wait = 25.0
+
+[storage]
+# Relatif au dossier du config.toml, ou chemin absolu.
+state_path = "state.json"

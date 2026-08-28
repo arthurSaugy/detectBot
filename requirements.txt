@@ -1,0 +1,6 @@
+httpx[http2]>=0.27,<1.0
+tomli>=2.0 ; python_version < "3.11"
+# Permet d'annoncer/décoder brotli comme un vrai navigateur.
+brotli>=1.1
+# Optionnel : uniquement si tu actives le repli navigateur (Cloudflare).
+# playwright>=1.44

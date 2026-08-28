@@ -1,0 +1,13 @@
+[Unit]
+Description=Déclenche mcwatch toutes les heures
+
+[Timer]
+OnCalendar=hourly
+# Décalage aléatoire jusqu'à 10 min : évite de taper pile à l'heure ronde.
+RandomizedDelaySec=600
+# Rattrape le passage manqué si le VPS était éteint.
+Persistent=true
+Unit=mcwatch.service
+
+[Install]
+WantedBy=timers.target

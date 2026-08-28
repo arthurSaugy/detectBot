@@ -1,0 +1,30 @@
+[Unit]
+Description=mcwatch — détection de nouveaux serveurs Minecraft
+Documentation=https://github.com/CHANGE-MOI/detectBot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=@USER@
+Group=@USER@
+WorkingDirectory=@APP_DIR@
+ExecStart=@APP_DIR@/.venv/bin/python -m mcwatch run
+TimeoutStartSec=300
+
+# Durcissement : le service n'a besoin que d'écrire son state.json.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=@APP_DIR@
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+
+[Install]
+WantedBy=multi-user.target
