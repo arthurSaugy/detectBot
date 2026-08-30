@@ -16,9 +16,28 @@ echo "==> Dossier applicatif : $APP_DIR"
 echo "==> Utilisateur du service : $RUN_USER"
 
 # --- 1. Environnement virtuel -----------------------------------------------
-if [[ ! -d "$APP_DIR/.venv" ]]; then
+# On teste l'interpréteur, pas le dossier : un venv à moitié créé (ensurepip
+# manquant) laisse un .venv vide qui ferait échouer la suite silencieusement.
+if [[ ! -x "$APP_DIR/.venv/bin/python" ]]; then
+  if [[ -d "$APP_DIR/.venv" ]]; then
+    echo "==> Virtualenv incomplet, on repart de zéro"
+    rm -rf "$APP_DIR/.venv"
+  fi
   echo "==> Création du virtualenv"
-  sudo -u "$RUN_USER" python3 -m venv "$APP_DIR/.venv"
+  if ! sudo -u "$RUN_USER" python3 -m venv "$APP_DIR/.venv"; then
+    PYVER="$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
+    cat >&2 <<MSG
+
+Échec de la création du virtualenv.
+Sur Debian/Ubuntu, le module venv est dans un paquet séparé :
+
+    sudo apt update && sudo apt install -y python${PYVER}-venv
+
+puis relance ce script.
+MSG
+    rm -rf "$APP_DIR/.venv"
+    exit 1
+  fi
 fi
 echo "==> Installation des dépendances"
 sudo -u "$RUN_USER" "$APP_DIR/.venv/bin/pip" install --quiet --upgrade pip
