@@ -48,16 +48,19 @@ d'abord une requête HTTP légère, et ne démarre Chromium headless que pour le
 domaines qui l'exigent. Chromium n'est donc jamais lancé pour les deux autres
 sites.
 
-Selon l'IP de ton VPS, le challenge peut ne pas se déclencher du tout — les
-règles Cloudflare dépendent de la réputation de l'adresse. Commence sans
-Playwright : `mcwatch selftest` te dira en une commande si tu en as besoin.
+Les règles Cloudflare dépendent de la réputation de l'IP, et l'écart est net :
+depuis une connexion résidentielle, seul `serveur-minecraft.com` bloque ; depuis
+un VPS, `serveur-minecraft-vote.fr` bloque aussi. Seul `serveursminecraft.org`
+passe partout. `mcwatch selftest` te dit en une commande où tu en es sur *ta*
+machine.
 
 > **Non vérifié de bout en bout.** Le code du repli navigateur
-> (`mcwatch/browser.py`) n'a pas pu être testé contre le vrai challenge : la
-> machine de développement ne pouvait pas télécharger Chromium. Les deux autres
-> sites, eux, sont validés en conditions réelles. Si `selftest` échoue encore
-> après l'installation de Playwright, c'est ce fichier qu'il faut ajuster
-> (durée d'attente, arguments de lancement).
+> (`mcwatch/browser.py`) n'a pas pu être testé contre le vrai challenge lors de
+> son écriture : la machine de développement ne pouvait pas télécharger
+> Chromium. La détection sur les sites accessibles, elle, est validée en
+> conditions réelles. Si `selftest` échoue encore après l'installation de
+> Playwright, c'est ce fichier qu'il faut ajuster (durée d'attente dans
+> `browser_wait`, arguments de lancement).
 
 ## Installation sur le VPS
 
@@ -83,13 +86,21 @@ Vérifie que la détection fonctionne depuis cette machine :
 .venv/bin/python -m mcwatch selftest
 ```
 
-Si `serveur-minecraft.com` remonte `CHALLENGE`, ajoute le navigateur :
+Si un site remonte `CHALLENGE`, ajoute le navigateur :
 
 ```bash
 .venv/bin/pip install playwright
-.venv/bin/playwright install --with-deps chromium   # ~200 Mo
-.venv/bin/python -m mcwatch selftest                # doit passer au vert
+sudo ./deploy/install.sh              # détecte playwright et installe Chromium (~200 Mo)
+.venv/bin/python -m mcwatch selftest  # doit passer au vert
 ```
+
+Chromium est installé dans `.playwright/` **à l'intérieur du dossier applicatif**,
+pas dans `~/.cache` : le service systemd tourne avec `ProtectHome=read-only`.
+`mcwatch/browser.py` pointe `PLAYWRIGHT_BROWSERS_PATH` dessus automatiquement.
+
+L'unité systemd n'active volontairement **pas** `MemoryDenyWriteExecute` : le JIT
+de V8 a besoin de pages mémoire inscriptibles puis exécutables, et Chromium
+refuserait de démarrer.
 
 ## Recevoir les notifications
 

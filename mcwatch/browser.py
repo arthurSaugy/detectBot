@@ -14,13 +14,19 @@ continue de fonctionner en HTTP pur et signale simplement les sites bloqués.
 from __future__ import annotations
 
 import logging
+import os
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
-from .config import Config
+from .config import ROOT, Config
 from .fetcher import ChallengeError, FetchError
 
 log = logging.getLogger(__name__)
+
+# Chromium est installé dans le dossier applicatif plutôt que dans ~/.cache :
+# le service systemd tourne avec ProtectHome=read-only, et un chemin local
+# reste valable quel que soit l'utilisateur qui lance la commande.
+BUNDLED_BROWSERS = ROOT / ".playwright"
 
 _CHALLENGE_TITLES = ("just a moment", "un instant", "attendez")
 
@@ -52,6 +58,9 @@ class BrowserFetcher:
     def start(self) -> None:
         if self._page is not None:
             return
+        if BUNDLED_BROWSERS.is_dir():
+            os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", str(BUNDLED_BROWSERS))
+
         try:
             from playwright.sync_api import sync_playwright
         except ImportError as exc:  # pragma: no cover

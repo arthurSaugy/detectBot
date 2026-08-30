@@ -24,7 +24,8 @@ ProtectControlGroups=yes
 RestrictNamespaces=yes
 RestrictSUIDSGID=yes
 LockPersonality=yes
-MemoryDenyWriteExecute=yes
+# Pas de MemoryDenyWriteExecute : le JIT de V8 (Chromium, repli Cloudflare)
+# a besoin de pages mémoire inscriptibles puis exécutables.
 
 [Install]
 WantedBy=multi-user.target

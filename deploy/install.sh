@@ -43,6 +43,15 @@ echo "==> Installation des dépendances"
 sudo -u "$RUN_USER" "$APP_DIR/.venv/bin/pip" install --quiet --upgrade pip
 sudo -u "$RUN_USER" "$APP_DIR/.venv/bin/pip" install --quiet -r "$APP_DIR/requirements.txt"
 
+# --- 1 bis. Chromium pour le repli Cloudflare (si playwright est installé) ---
+if [[ -x "$APP_DIR/.venv/bin/playwright" ]]; then
+  echo "==> Playwright détecté : installation de Chromium"
+  "$APP_DIR/.venv/bin/playwright" install-deps chromium \
+    || echo "!! install-deps a échoué — Chromium peut manquer de bibliothèques système"
+  sudo -u "$RUN_USER" env PLAYWRIGHT_BROWSERS_PATH="$APP_DIR/.playwright" \
+    "$APP_DIR/.venv/bin/playwright" install chromium
+fi
+
 # --- 2. Configuration --------------------------------------------------------
 if [[ ! -f "$APP_DIR/config.toml" ]]; then
   cp "$APP_DIR/config.example.toml" "$APP_DIR/config.toml"
